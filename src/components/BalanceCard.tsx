@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
 import { View } from 'react-native';
+import * as Animatable from 'react-native-animatable';
 
 const CardsRow = styled.View`
   flex-direction: row;
@@ -94,28 +95,34 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ totalIncome, totalExpe
   return (
     <View style={{ paddingHorizontal: 12 }}>
       <CardsRow>
-        <SmallCard>
-          <SectionLabel>Income</SectionLabel>
-          <AmountText>₹ {totalIncome.toLocaleString('en-IN')}</AmountText>
-          <ChipContainer type="income">
-            <ChipDot type="income" />
-            <ChipText type="income">Verified receipts</ChipText>
-          </ChipContainer>
-        </SmallCard>
-        <SmallCard>
-          <SectionLabel>Expense</SectionLabel>
-          <AmountText>₹ {totalExpense.toLocaleString('en-IN')}</AmountText>
-          <ChipContainer type="expense">
-            <ChipDot type="expense" />
-            <ChipText type="expense">Operational</ChipText>
-          </ChipContainer>
-        </SmallCard>
+        <Animatable.View animation="fadeInUp" duration={600} delay={100} style={{ flex: 1, marginRight: 4 }} useNativeDriver>
+          <SmallCard style={{ marginHorizontal: 0 }}>
+            <SectionLabel>Income</SectionLabel>
+            <AmountText>₹ {totalIncome.toLocaleString('en-IN')}</AmountText>
+            <ChipContainer type="income">
+              <ChipDot type="income" />
+              <ChipText type="income">Verified receipts</ChipText>
+            </ChipContainer>
+          </SmallCard>
+        </Animatable.View>
+        <Animatable.View animation="fadeInUp" duration={600} delay={250} style={{ flex: 1, marginLeft: 4 }} useNativeDriver>
+          <SmallCard style={{ marginHorizontal: 0 }}>
+            <SectionLabel>Expense</SectionLabel>
+            <AmountText>₹ {totalExpense.toLocaleString('en-IN')}</AmountText>
+            <ChipContainer type="expense">
+              <ChipDot type="expense" />
+              <ChipText type="expense">Operational</ChipText>
+            </ChipContainer>
+          </SmallCard>
+        </Animatable.View>
       </CardsRow>
 
-      <HeroCard>
-        <HeroLabel>Current Liquidity</HeroLabel>
-        <HeroAmountText>₹ {balanceInHand.toLocaleString('en-IN')}</HeroAmountText>
-      </HeroCard>
+      <Animatable.View animation="fadeInUp" duration={800} delay={400} useNativeDriver>
+        <HeroCard>
+          <HeroLabel>Current Liquidity</HeroLabel>
+          <HeroAmountText>₹ {balanceInHand.toLocaleString('en-IN')}</HeroAmountText>
+        </HeroCard>
+      </Animatable.View>
     </View>
   );
 };

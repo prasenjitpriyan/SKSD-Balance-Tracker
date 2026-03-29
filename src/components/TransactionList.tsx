@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components/native';
 import { Transaction } from '../types';
 import { View } from 'react-native';
+import * as Animatable from 'react-native-animatable';
 
 const ListContainer = styled.View`
   flex: 1;
@@ -69,21 +70,29 @@ export const TransactionList: React.FC<Props> = ({ data, type }) => {
   return (
     <ListContainer>
       <View style={{ paddingBottom: 100 }}>
-        {data.map((item) => (
-          <ItemContainer key={item.id}>
-            <LeftContent>
-              <IconCircle type={type}>
-                <IconText type={type}>{getInitial(item.source)}</IconText>
-              </IconCircle>
-              <View style={{ flex: 1, paddingRight: 12 }}>
-                <SourceText numberOfLines={1}>{item.source}</SourceText>
-                <DateText>Completed</DateText>
-              </View>
-            </LeftContent>
-            <AmountText type={type}>
-              {type === 'income' ? '+' : '-'}₹{item.amount.toLocaleString('en-IN')}
-            </AmountText>
-          </ItemContainer>
+        {data.map((item, index) => (
+          <Animatable.View 
+            key={item.id} 
+            animation="fadeInUp" 
+            duration={500} 
+            delay={index * 100}
+            useNativeDriver
+          >
+            <ItemContainer>
+              <LeftContent>
+                <IconCircle type={type}>
+                  <IconText type={type}>{getInitial(item.source)}</IconText>
+                </IconCircle>
+                <View style={{ flex: 1, paddingRight: 12 }}>
+                  <SourceText numberOfLines={1}>{item.source}</SourceText>
+                  <DateText>Completed</DateText>
+                </View>
+              </LeftContent>
+              <AmountText type={type}>
+                {type === 'income' ? '+' : '-'}₹{item.amount.toLocaleString('en-IN')}
+              </AmountText>
+            </ItemContainer>
+          </Animatable.View>
         ))}
       </View>
     </ListContainer>

@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, ActivityIndicator } from 'react-native';
+import { View, ScrollView, ActivityIndicator, LayoutAnimation, UIManager, Platform } from 'react-native';
+import * as Animatable from 'react-native-animatable';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import { BalanceCard } from './src/components/BalanceCard';
@@ -130,8 +131,15 @@ const SectionHeader = styled.Text`
   margin-bottom: 4px;
 `;
 
+
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'income' | 'expense' | 'reports'>('home');
+
+  const handleTabPress = (tab: any) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setActiveTab(tab);
+  };
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -166,20 +174,22 @@ export default function App() {
       <Container>
         <StatusBar style="dark" />
         <SafeAreaView style={{ flex: 1 }}>
-        <HeaderRow>
-          <View>
-            <HeaderTitle>Division Summary</HeaderTitle>
-            <Subtitle>SOUTH KOLKATA FIRST SUB DIVISION</Subtitle>
-          </View>
-          <AvatarRow>
-            <IconButton>
-              <AvatarText style={{ color: '#1A237E' }}>🔔</AvatarText>
-            </IconButton>
-            <Avatar>
-              <AvatarText>PD</AvatarText>
-            </Avatar>
-          </AvatarRow>
-        </HeaderRow>
+        <Animatable.View animation="fadeInDown" duration={600} useNativeDriver>
+          <HeaderRow>
+            <View>
+              <HeaderTitle>Division Summary</HeaderTitle>
+              <Subtitle>SOUTH KOLKATA FIRST SUB DIVISION</Subtitle>
+            </View>
+            <AvatarRow>
+              <IconButton>
+                <AvatarText style={{ color: '#1A237E' }}>🔔</AvatarText>
+              </IconButton>
+              <Avatar>
+                <AvatarText>PD</AvatarText>
+              </Avatar>
+            </AvatarRow>
+          </HeaderRow>
+        </Animatable.View>
 
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
           <BalanceCard 
@@ -188,14 +198,16 @@ export default function App() {
             balanceInHand={balanceInHand} 
           />
 
-          <ActionsContainer>
-            <ActionBtn primary>
-              <ActionText primary>+ Add Income</ActionText>
-            </ActionBtn>
-            <ActionBtn>
-              <ActionText>- Add Expense</ActionText>
-            </ActionBtn>
-          </ActionsContainer>
+          <Animatable.View animation="fadeInUp" duration={800} delay={600} useNativeDriver>
+            <ActionsContainer>
+              <ActionBtn primary>
+                <ActionText primary>+ Add Income</ActionText>
+              </ActionBtn>
+              <ActionBtn>
+                <ActionText>- Add Expense</ActionText>
+              </ActionBtn>
+            </ActionsContainer>
+          </Animatable.View>
 
           <SectionHeader>
             {activeTab === 'expense' ? 'Recent Expenses' : 'Recent Income'}
@@ -215,7 +227,7 @@ export default function App() {
 
       <BottomNav>
         {['home', 'income', 'expense', 'reports'].map((tab) => (
-          <NavItem key={tab} onPress={() => setActiveTab(tab as any)}>
+          <NavItem key={tab} onPress={() => handleTabPress(tab as any)}>
             <NavDot active={activeTab === tab} />
             <NavText active={activeTab === tab}>
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
