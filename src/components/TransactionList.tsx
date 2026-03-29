@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
 import { Transaction } from '../types';
-import { FlatList, ListRenderItem, View, Text } from 'react-native';
+import { View } from 'react-native';
 
 const ListContainer = styled.View`
   flex: 1;
