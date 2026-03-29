@@ -1,11 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
-import { View, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import { BalanceCard } from './src/components/BalanceCard';
 import { TransactionList } from './src/components/TransactionList';
-import { INCOME_DATA, EXPENSE_DATA } from './src/data/mockData';
+import { supabase } from './src/lib/supabase';
+import { Transaction } from './src/types';
 
 const Container = styled.View`
   flex: 1;
@@ -131,6 +132,34 @@ const SectionHeader = styled.Text`
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'income' | 'expense' | 'reports'>('home');
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const fetchTransactions = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching transactions:', error);
+    } else if (data) {
+      setTransactions(data);
+    }
+    setLoading(false);
+  };
+
+  const incomeTransactions = transactions.filter(t => t.type === 'income');
+  const expenseTransactions = transactions.filter(t => t.type === 'expense');
+
+  const totalIncome = incomeTransactions.reduce((acc, cur) => acc + cur.amount, 0);
+  const totalExpense = expenseTransactions.reduce((acc, cur) => acc + cur.amount, 0);
+  const balanceInHand = totalIncome - totalExpense;
 
   return (
     <SafeAreaProvider>
@@ -153,7 +182,11 @@ export default function App() {
         </HeaderRow>
 
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-          <BalanceCard />
+          <BalanceCard 
+            totalIncome={totalIncome} 
+            totalExpense={totalExpense} 
+            balanceInHand={balanceInHand} 
+          />
 
           <ActionsContainer>
             <ActionBtn primary>
@@ -168,10 +201,14 @@ export default function App() {
             {activeTab === 'expense' ? 'Recent Expenses' : 'Recent Income'}
           </SectionHeader>
 
-          {activeTab === 'expense' ? (
-            <TransactionList data={EXPENSE_DATA} type="expense" />
+          {loading ? (
+            <ActivityIndicator size="large" color="#1A237E" style={{ marginTop: 20 }} />
           ) : (
-            <TransactionList data={INCOME_DATA} type="income" />
+            activeTab === 'expense' ? (
+              <TransactionList data={expenseTransactions} type="expense" />
+            ) : (
+              <TransactionList data={incomeTransactions} type="income" />
+            )
           )}
         </ScrollView>
       </SafeAreaView>

@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import { TOTAL_INCOME, TOTAL_EXPENSE, BALANCE_IN_HAND } from '../data/mockData';
 import { View } from 'react-native';
 
 const CardsRow = styled.View`
@@ -85,13 +84,19 @@ const ChipText = styled.Text<{ type: 'income' | 'expense' }>`
   color: ${({ type }) => (type === 'income' ? '#2E7D32' : '#C62828')};
 `;
 
-export const BalanceCard: React.FC = () => {
+interface BalanceCardProps {
+  totalIncome: number;
+  totalExpense: number;
+  balanceInHand: number;
+}
+
+export const BalanceCard: React.FC<BalanceCardProps> = ({ totalIncome, totalExpense, balanceInHand }) => {
   return (
     <View style={{ paddingHorizontal: 12 }}>
       <CardsRow>
         <SmallCard>
           <SectionLabel>Income</SectionLabel>
-          <AmountText>₹ {TOTAL_INCOME.toLocaleString('en-IN')}</AmountText>
+          <AmountText>₹ {totalIncome.toLocaleString('en-IN')}</AmountText>
           <ChipContainer type="income">
             <ChipDot type="income" />
             <ChipText type="income">Verified receipts</ChipText>
@@ -99,7 +104,7 @@ export const BalanceCard: React.FC = () => {
         </SmallCard>
         <SmallCard>
           <SectionLabel>Expense</SectionLabel>
-          <AmountText>₹ {TOTAL_EXPENSE.toLocaleString('en-IN')}</AmountText>
+          <AmountText>₹ {totalExpense.toLocaleString('en-IN')}</AmountText>
           <ChipContainer type="expense">
             <ChipDot type="expense" />
             <ChipText type="expense">Operational</ChipText>
@@ -109,7 +114,7 @@ export const BalanceCard: React.FC = () => {
 
       <HeroCard>
         <HeroLabel>Current Liquidity</HeroLabel>
-        <HeroAmountText>₹ {BALANCE_IN_HAND.toLocaleString('en-IN')}</HeroAmountText>
+        <HeroAmountText>₹ {balanceInHand.toLocaleString('en-IN')}</HeroAmountText>
       </HeroCard>
     </View>
   );

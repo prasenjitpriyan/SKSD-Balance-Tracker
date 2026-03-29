@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import { Transaction } from '../data/mockData';
+import { Transaction } from '../types';
 import { FlatList, ListRenderItem, View, Text } from 'react-native';
 
 const ListContainer = styled.View`
