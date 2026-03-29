@@ -1,11 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, ActivityIndicator, LayoutAnimation, UIManager, Platform } from 'react-native';
+import { View, ScrollView, ActivityIndicator, LayoutAnimation, UIManager, Platform, Alert } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import { BalanceCard } from './src/components/BalanceCard';
 import { TransactionList } from './src/components/TransactionList';
+import { TransactionModal } from './src/components/TransactionModal';
 import { supabase } from './src/lib/supabase';
 import { Transaction } from './src/types';
 
@@ -135,12 +136,17 @@ const SectionHeader = styled.Text`
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'income' | 'expense' | 'reports'>('home');
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Modal State
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState<'income' | 'expense' | null>(null);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   const handleTabPress = (tab: any) => {
     setActiveTab(tab);
   };
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchTransactions();
@@ -159,6 +165,63 @@ export default function App() {
       setTransactions(data);
     }
     setLoading(false);
+  };
+
+  const handleSaveTransaction = async (source: string, amount: number, date: Date, id?: string) => {
+    if (!modalType) return;
+    
+    if (id) {
+      const { error } = await supabase.from('transactions').update({
+        source, amount, type: modalType, created_at: date.toISOString()
+      }).eq('id', id);
+
+      if (error) {
+        console.error('Update error:', error);
+        Alert.alert('Error', 'Failed to update transaction. Did you enable the UPDATE policy in Supabase?');
+      } else {
+        await fetchTransactions();
+      }
+    } else {
+      const { error } = await supabase.from('transactions').insert([
+        { source, amount, type: modalType, created_at: date.toISOString() }
+      ]);
+      
+      if (error) {
+        console.error('Insert error:', error);
+        Alert.alert('Error', 'Failed to save transaction. Did you enable the INSERT policy in Supabase?');
+      } else {
+        await fetchTransactions();
+      }
+    }
+  };
+
+  const handleEditTransaction = (item: Transaction) => {
+    setModalType(item.type);
+    setEditingTransaction(item);
+    setModalVisible(true);
+  };
+
+  const handleDeleteTransaction = (id: string, source: string) => {
+    Alert.alert(
+      "Delete Transaction",
+      `Are you sure you want to delete "${source}"?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Delete", 
+          style: "destructive",
+          onPress: async () => {
+            const { error } = await supabase.from('transactions').delete().eq('id', id);
+            if (error) {
+              console.error('Delete error:', error);
+              Alert.alert('Error', 'Failed to delete transaction. Ensure DELETE policy is enabled.');
+            } else {
+              await fetchTransactions();
+            }
+          }
+        }
+      ]
+    );
   };
 
   const incomeTransactions = transactions.filter(t => t.type === 'income');
@@ -199,10 +262,10 @@ export default function App() {
 
           <Animatable.View animation="fadeInUp" duration={800} delay={600}>
             <ActionsContainer>
-              <ActionBtn primary>
+              <ActionBtn primary onPress={() => { setModalType('income'); setEditingTransaction(null); setModalVisible(true); }}>
                 <ActionText primary>+ Add Income</ActionText>
               </ActionBtn>
-              <ActionBtn>
+              <ActionBtn onPress={() => { setModalType('expense'); setEditingTransaction(null); setModalVisible(true); }}>
                 <ActionText>- Add Expense</ActionText>
               </ActionBtn>
             </ActionsContainer>
@@ -216,11 +279,11 @@ export default function App() {
             <ActivityIndicator size="large" color="#1A237E" style={{ marginTop: 20 }} />
           ) : (
             activeTab === 'home' || activeTab === 'reports' ? (
-              <TransactionList data={transactions} />
+              <TransactionList data={transactions} onDelete={handleDeleteTransaction} onEdit={handleEditTransaction} />
             ) : activeTab === 'expense' ? (
-              <TransactionList data={expenseTransactions} />
+              <TransactionList data={expenseTransactions} onDelete={handleDeleteTransaction} onEdit={handleEditTransaction} />
             ) : (
-              <TransactionList data={incomeTransactions} />
+              <TransactionList data={incomeTransactions} onDelete={handleDeleteTransaction} onEdit={handleEditTransaction} />
             )
           )}
         </ScrollView>
@@ -236,6 +299,14 @@ export default function App() {
           </NavItem>
         ))}
       </BottomNav>
+      
+      <TransactionModal 
+        visible={modalVisible}
+        type={modalType}
+        onClose={() => { setModalVisible(false); setEditingTransaction(null); }}
+        onSave={handleSaveTransaction}
+        initialData={editingTransaction}
+      />
       </Container>
     </SafeAreaProvider>
   );

@@ -57,3 +57,21 @@ insert into public.transactions (source, amount, type) values
 ('BOX TO DIVISION', 200, 'expense'),
 ('COFFEE MARCH-2026', 200, 'expense'),
 ('CAMP ANUSRITA DUTTA 3 DAYS', 730, 'expense');
+
+-- ----------------------------------------------------
+-- URGENT: RUN THESE POLICIES TO ENABLE ADDING RECORDS!
+-- ----------------------------------------------------
+-- Allow anonymous insert access
+create policy "Allow anonymous insert access"
+  on public.transactions for insert
+  with check ( true );
+
+-- Allow anonymous delete access (for future proofing)
+create policy "Allow anonymous delete access"
+  on public.transactions for delete
+  using ( true );
+
+-- Allow anonymous update access
+create policy "Allow anonymous update access"
+  on public.transactions for update
+  using ( true );

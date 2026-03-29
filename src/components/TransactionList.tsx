@@ -9,7 +9,7 @@ const ListContainer = styled.View`
   padding-horizontal: 16px;
 `;
 
-const ItemContainer = styled.View`
+const ItemContainer = styled.TouchableOpacity`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
@@ -60,9 +60,11 @@ const AmountText = styled.Text<{ type: 'income' | 'expense' }>`
 
 interface Props {
   data: Transaction[];
+  onDelete?: (id: string, source: string) => void;
+  onEdit?: (item: Transaction) => void;
 }
 
-export const TransactionList: React.FC<Props> = ({ data }) => {
+export const TransactionList: React.FC<Props> = ({ data, onDelete, onEdit }) => {
   const getInitial = (source: string) => source.charAt(0).toUpperCase();
   
   const formatDate = (dateString?: string) => {
@@ -85,7 +87,11 @@ export const TransactionList: React.FC<Props> = ({ data }) => {
             duration={500} 
             delay={index * 100}
           >
-            <ItemContainer>
+            <ItemContainer 
+              activeOpacity={onDelete || onEdit ? 0.6 : 1}
+              onLongPress={() => onDelete && onDelete(item.id, item.source)}
+              onPress={() => onEdit && onEdit(item)}
+            >
               <LeftContent>
                 <IconCircle type={item.type}>
                   <IconText type={item.type}>{getInitial(item.source)}</IconText>
