@@ -5,7 +5,6 @@ import { View } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 
 const ListContainer = styled.View`
-  flex: 1;
   background-color: #F8F9FA;
   padding-horizontal: 16px;
 `;
@@ -61,11 +60,20 @@ const AmountText = styled.Text<{ type: 'income' | 'expense' }>`
 
 interface Props {
   data: Transaction[];
-  type: 'income' | 'expense';
 }
 
-export const TransactionList: React.FC<Props> = ({ data, type }) => {
+export const TransactionList: React.FC<Props> = ({ data }) => {
   const getInitial = (source: string) => source.charAt(0).toUpperCase();
+  
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Completed';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
 
   return (
     <ListContainer>
@@ -76,20 +84,19 @@ export const TransactionList: React.FC<Props> = ({ data, type }) => {
             animation="fadeInUp" 
             duration={500} 
             delay={index * 100}
-            useNativeDriver
           >
             <ItemContainer>
               <LeftContent>
-                <IconCircle type={type}>
-                  <IconText type={type}>{getInitial(item.source)}</IconText>
+                <IconCircle type={item.type}>
+                  <IconText type={item.type}>{getInitial(item.source)}</IconText>
                 </IconCircle>
                 <View style={{ flex: 1, paddingRight: 12 }}>
                   <SourceText numberOfLines={1}>{item.source}</SourceText>
-                  <DateText>Completed</DateText>
+                  <DateText>{formatDate(item.created_at)}</DateText>
                 </View>
               </LeftContent>
-              <AmountText type={type}>
-                {type === 'income' ? '+' : '-'}₹{item.amount.toLocaleString('en-IN')}
+              <AmountText type={item.type}>
+                {item.type === 'income' ? '+' : '-'}₹{item.amount.toLocaleString('en-IN')}
               </AmountText>
             </ItemContainer>
           </Animatable.View>

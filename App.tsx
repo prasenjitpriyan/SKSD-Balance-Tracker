@@ -137,7 +137,6 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'income' | 'expense' | 'reports'>('home');
 
   const handleTabPress = (tab: any) => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setActiveTab(tab);
   };
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -174,7 +173,7 @@ export default function App() {
       <Container>
         <StatusBar style="dark" />
         <SafeAreaView style={{ flex: 1 }}>
-        <Animatable.View animation="fadeInDown" duration={600} useNativeDriver>
+        <Animatable.View animation="fadeInDown" duration={600}>
           <HeaderRow>
             <View>
               <HeaderTitle>Division Summary</HeaderTitle>
@@ -198,7 +197,7 @@ export default function App() {
             balanceInHand={balanceInHand} 
           />
 
-          <Animatable.View animation="fadeInUp" duration={800} delay={600} useNativeDriver>
+          <Animatable.View animation="fadeInUp" duration={800} delay={600}>
             <ActionsContainer>
               <ActionBtn primary>
                 <ActionText primary>+ Add Income</ActionText>
@@ -210,16 +209,18 @@ export default function App() {
           </Animatable.View>
 
           <SectionHeader>
-            {activeTab === 'expense' ? 'Recent Expenses' : 'Recent Income'}
+            {activeTab === 'home' ? 'Recent Transactions' : activeTab === 'expense' ? 'Recent Expenses' : activeTab === 'income' ? 'Recent Income' : 'All Reports'}
           </SectionHeader>
 
           {loading ? (
             <ActivityIndicator size="large" color="#1A237E" style={{ marginTop: 20 }} />
           ) : (
-            activeTab === 'expense' ? (
-              <TransactionList data={expenseTransactions} type="expense" />
+            activeTab === 'home' || activeTab === 'reports' ? (
+              <TransactionList data={transactions} />
+            ) : activeTab === 'expense' ? (
+              <TransactionList data={expenseTransactions} />
             ) : (
-              <TransactionList data={incomeTransactions} type="income" />
+              <TransactionList data={incomeTransactions} />
             )
           )}
         </ScrollView>

@@ -95,7 +95,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ totalIncome, totalExpe
   return (
     <View style={{ paddingHorizontal: 12 }}>
       <CardsRow>
-        <Animatable.View animation="fadeInUp" duration={600} delay={100} style={{ flex: 1, marginRight: 4 }} useNativeDriver>
+        <Animatable.View animation="fadeInUp" duration={600} delay={100} style={{ flex: 1, marginRight: 4 }}>
           <SmallCard style={{ marginHorizontal: 0 }}>
             <SectionLabel>Income</SectionLabel>
             <AmountText>₹ {totalIncome.toLocaleString('en-IN')}</AmountText>
@@ -105,7 +105,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ totalIncome, totalExpe
             </ChipContainer>
           </SmallCard>
         </Animatable.View>
-        <Animatable.View animation="fadeInUp" duration={600} delay={250} style={{ flex: 1, marginLeft: 4 }} useNativeDriver>
+        <Animatable.View animation="fadeInUp" duration={600} delay={250} style={{ flex: 1, marginLeft: 4 }}>
           <SmallCard style={{ marginHorizontal: 0 }}>
             <SectionLabel>Expense</SectionLabel>
             <AmountText>₹ {totalExpense.toLocaleString('en-IN')}</AmountText>
@@ -117,7 +117,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ totalIncome, totalExpe
         </Animatable.View>
       </CardsRow>
 
-      <Animatable.View animation="fadeInUp" duration={800} delay={400} useNativeDriver>
+      <Animatable.View animation="fadeInUp" duration={800} delay={400}>
         <HeroCard>
           <HeroLabel>Current Liquidity</HeroLabel>
           <HeroAmountText>₹ {balanceInHand.toLocaleString('en-IN')}</HeroAmountText>
